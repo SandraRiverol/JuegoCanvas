@@ -1,0 +1,166 @@
+<html>
+	<head>
+		<title>Ponle un sello</title>
+		<link href='https://fonts.googleapis.com/css?family=Nunito' rel='stylesheet' type='text/css'>
+		<link href='Estilo.css' rel='stylesheet' type='text/css'>
+	</head>
+	<body bgcolor="#EFF8FB">
+		<audio>
+			  <source src="horse.ogg" type="audio/ogg">
+			  <source src="horse.mp3" type="audio/mpeg">
+			Your browser does not support the audio element.
+		</audio> 
+		<p class = "centrar">
+			<img src = "imagen.jpg" width = "500"/><br/><br/>
+			<a>Con el cursor ponle un sello al elemento, tienes 15 segundos para poner todos los sellos posible... <br/><strong>¡Que las mini-investigaciones 
+			est&eacute;n de tu lado!</strong></a>
+		</p>
+		
+		<canvas id = "canvas" width = "600" height = "400">
+		</canvas>
+		<script>
+		(function()
+		{ 
+			'use strict'; 
+			window.addEventListener('load',iniciar,false); 
+			var canvas=null;
+			var ctx=null; 
+			var Actualiza=0; 
+			var Pausa=true; 
+			var TeclaPress=null; 
+			var mx=0;
+			var my=0; 
+			var puntu=0;
+			var contador=0; 
+			var Color='#00AAFF'; 
+			var jugador=new Circle(0,0,5); 
+			var Raqs=new Circle(100,100,25);
+			var Sello=new Image(); 
+			Sello.src='Sello.png'; 
+			var Raquel=new Image(); 
+			Raquel.src='Raquel.png'; 
+			function iniciar()
+			{
+				canvas=document.getElementById('canvas'); 
+				ctx=canvas.getContext('2d'); 
+				Habilitar(); 
+				run();
+			} 
+			function random(max)
+			{ 
+				return (Math.random()*max); 
+				} 
+			function run()
+			{ 
+				requestAnimationFrame(run); 
+				var now=Date.now(); 
+				var Time=(now-Actualiza)/1000; 
+				if(Time>1)Time=0; Actualiza=now; 
+				act(Time); paint(ctx);
+			}
+			function act(Time)
+			{ 
+				jugador.x=mx;
+				jugador.y=my;
+				if(jugador.x<0)
+					jugador.x=0; 
+				if(jugador.x>canvas.width)
+					jugador.x=canvas.width; 
+				if(jugador.y<0) 
+					jugador.y=0; 
+				if(jugador.y>canvas.height)
+					jugador.y=canvas.height; 
+				contador-=Time;
+				if(!Pausa)
+				{ 
+					if(TeclaPress==1)
+					{ 
+						Color='#00AAFF'; 
+						if(jugador.distance(Raqs)<0)
+						{ 
+							puntu++; 
+							Raqs.x=random(canvas.width/10-1)*10+Raqs.radius;
+							Raqs.y=random(canvas.height/10-1)*10+Raqs.radius;
+						} 
+					} 
+					else 
+						Color='#00AAFF'; 
+					if(contador<=0)
+					{ 
+						Pausa=true; 
+					} 
+				} 
+				else if(TeclaPress==1&&contador<-1)
+				{ 
+					Pausa=false; 
+					contador=15; 
+					puntu=0; 
+				} 
+				TeclaPress=null; 
+			} 
+		function paint(ctx)
+		{
+			ctx.fillStyle=Color; 
+			ctx.fillRect(0,0,canvas.width,canvas.height); 
+			ctx.strokeStyle='#f00';
+			Raqs.drawImage(ctx,Raquel); 
+			ctx.strokeStyle='#0f0'; 
+			jugador.drawImage(ctx,Sello); 
+			ctx.fillStyle='#EFF8FB';
+			ctx.fillText('Puntuacion: '+puntu,0,10); 
+			if(contador>0)
+			ctx.fillText('Time: '+contador.toFixed(1),500,10); 
+			else 
+				ctx.fillText('Tiempo: 0.0',500,10); 
+			if(Pausa)
+			{ 
+				ctx.fillText('Puntuacion: '+puntu,260,170); 
+				if(contador<-1) 
+					ctx.fillText('Presiona para empezar',235,190); 
+			} 
+		}
+		function Habilitar()
+		{ 
+			document.addEventListener('mousemove',function(evt){ 
+				mx=evt.pageX-canvas.offsetLeft; 
+				my=evt.pageY-canvas.offsetTop; 
+			},false); 
+			canvas.addEventListener('mousedown',function(evt)
+			{ 
+				TeclaPress=evt.which; 
+			},false);
+		} 
+		function Circle(x,y,radius)
+		{ 
+			this.x=(x==null)?0:x;
+			this.y=(y==null)?0:y;
+			this.radius=(radius==null)?0:radius;
+		} 
+		Circle.prototype.distance=function(circle)
+		{ 
+			if(circle!=null)
+			{ 
+				var dx=this.x-circle.x;
+				var dy=this.y-circle.y;
+				return (Math.sqrt(dx*dx+dy*dy)-(this.radius+circle.radius));
+			} 
+		} 
+		Circle.prototype.stroke=function(ctx)
+		{ 
+			ctx.beginPath();
+			ctx.arc(this.x,this.y,this.radius,0,Math.PI*2,true); 
+			ctx.stroke(); 
+		} 
+		Circle.prototype.drawImage=function(ctx,img)
+		{
+			if(img.width) 
+				ctx.drawImage(img,this.x-this.radius,this.y-this.radius); 
+			else
+				this.stroke(ctx); 
+		} 
+		window.requestAnimationFrame=(function()
+		{ 
+			return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || function(callback){window.setTimeout(callback,17);}; })(); })();
+			</script>
+	</body>
+</html>
